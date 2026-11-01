@@ -2,6 +2,9 @@
 #include <stdlib.h>
 
 #include "graphics/fbdev.h"
+#include "graphics/graphics.h"
+#include "smartstuff/math.h"
+#include "smartstuff/matrix.h"
 
 int main(int argc, char **argv, char **envp) {
 	(void)argc;
@@ -28,11 +31,27 @@ int main(int argc, char **argv, char **envp) {
 			}
 		}
 	}
+	for(int x = 1000; x<1900; ++x)
+	{
+		put_pix(&dpi, 0xff0000, x, -sinus(x/100.0)*100+512);
+		put_pix(&dpi, 0x00ff00, x, -cosinus(x/100.0)*100+512);
+		//printf("%d, %f\n", x, sinus(x/10.0));
+	}
+	vector axis = (vector)malloc(3*sizeof(*axis));
+	axis[0]=0;
+	axis[1]=1;
+	axis[2]=2;
+	matrix rotate = (matrix)malloc(3*sizeof(axis));
+	rotate = create_rotation_matrix(PI/3, axis);
+	for(int a = 0; a < 3; ++a)
+	{
+		for(int b = 0; b < 3; ++b)
+			printf("%.8f, ", rotate[a][b]);
+		putchar('\n');
+	}
+	
+	dot(&dpi, 1000, 1000, 5);
 	flush_device(&dpi);
-
-	char c;
-	scanf("%c", &c);
-	printf("char: %c\n", c);
 	destroy_device();
 }
 
