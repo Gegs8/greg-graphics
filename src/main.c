@@ -1,10 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "graphics/fbdev.h"
 #include "graphics/graphics.h"
 #include "smartstuff/math.h"
 #include "smartstuff/matrix.h"
+#include "file.h"
 
 int main(int argc, char **argv, char **envp) {
 	(void)argc;
@@ -21,6 +23,14 @@ int main(int argc, char **argv, char **envp) {
 		perror("init_device");
 		exit(1);
 	}
+	
+	FILE *pt = fopen("/home/gegs8/greg/models/cube", "r");
+	matrix model = (matrix)malloc(1024*sizeof(vector));
+	for(int i = 0; i < 1024; ++i)model[i] = (vector)malloc(3*sizeof(double));
+	int **edges = (int**)malloc(1024*sizeof(int*));
+	for(int i = 0; i < 1024; ++i) edges[i] = (int*)malloc(2*sizeof(int));
+	
+	parse_file(pt, model, edges);
 
 	for(unsigned int r = 0; r < 256; ++r) {
 		for(unsigned int g = 0; g < 256; ++g) {
