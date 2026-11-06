@@ -1,7 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <linux/fb.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
 
+#include "graphics/render.h"
 #include "graphics/fbdev.h"
 #include "graphics/graphics.h"
 #include "smartstuff/math.h"
@@ -26,33 +32,47 @@ int main(int argc, char **argv, char **envp) {
 	
 	FILE *pt = fopen("/home/gegs8/greg/models/cube", "r");
 	matrix model = (matrix)malloc(1024*sizeof(vector));
-	for(int i = 0; i < 1024; ++i)model[i] = (vector)malloc(3*sizeof(double));
-	int **edges = (int**)malloc(1024*sizeof(int*));
-	for(int i = 0; i < 1024; ++i) edges[i] = (int*)malloc(2*sizeof(int));
-	
-	parse_file(pt, model, edges);
 
-	for(unsigned int r = 0; r < 256; ++r) {
-		for(unsigned int g = 0; g < 256; ++g) {
-			for(unsigned int b0 = 0; b0 < 4; ++b0) {
-				for(unsigned int b1 = 0; b1 < 4; ++b1) {
-					put_pix(&dpi, (r<<16)|(g<<8)|(b1*64+b0*16), r + 256*b0, g + 256*b1);
-				}
-			}
-		}
+	for(int i = 0; i < 1024; ++i)model[i] = (vector)malloc(3*sizeof(double));
+
+	int **edges = (int**)malloc(1024*sizeof(int*));
+
+	for(int i = 0; i < 1024; ++i) edges[i] = (int*)malloc(2*sizeof(int));
+
+	size_t num_edges, num_verts;
+	if(parse_file(pt, model, edges, &num_edges, &num_verts) < 0) {
+		perror("parse_file");
+		exit(1);
 	}
-	for(int x = 1000; x<1900; ++x)
+	double translate[3] = {0, 0, 8};
+	int zero = 0;
+	for(unsigned int i = 0; ; ++i) {
+		matrix m2 = multiply_matrixes(model, num_verts, 3, create_rotation_matrix(PI*i/128.0, (double[]){1.0, 0.0, 2.0}), 3, 3);
+		m2 = translate_matrix(m2,  num_verts, 3, translate, 3);
+
+		clear_dpi(&dpi, 0x000000);
+		render_model(&dpi, m2, edges, num_edges, num_verts, 500);
+		for(size_t j = 0; j < num_verts; ++j) free(m2[j]);
+		free(m2);
+		flush_device(&dpi);
+		ioctl(give_fb(), FBIO_WAITFORVSYNC, &zero);
+	}
+	
+
+	for(size_t i = 0; i < num_verts; ++i)
 	{
-		put_pix(&dpi, 0xff0000, x, -sinus(x/100.0)*100+512);
-		put_pix(&dpi, 0x00ff00, x, -cosinus(x/100.0)*100+512);
-		//printf("%d, %f\n", x, sinus(x/10.0));
+		printf("Vertice %zu, x = %lf, y = %lf, z = %lf\n", i, model[i][0], model[i][1], model[i][2]);
 	}
+
 	vector axis = (vector)malloc(3*sizeof(*axis));
-	axis[0]=0;
-	axis[1]=1;
-	axis[2]=2;
+	axis[0]=7;
+	axis[1]=3;
+	axis[2]=1;
 	matrix rotate = (matrix)malloc(3*sizeof(axis));
-	rotate = create_rotation_matrix(PI/3, axis);
+	rotate = create_rotation_matrix(PI, axis);
+	matrix counter_rotate = create_blank_matrix(3, 3);
+	counter_rotate = create_rotation_matrix(PI, axis);
+	rotate = multiply_matrixes(rotate, 3, 3, counter_rotate, 3, 3);
 	for(int a = 0; a < 3; ++a)
 	{
 		for(int b = 0; b < 3; ++b)
@@ -60,7 +80,6 @@ int main(int argc, char **argv, char **envp) {
 		putchar('\n');
 	}
 	
-	dot(&dpi, 1000, 1000, 5);
 	flush_device(&dpi);
 	destroy_device();
 }

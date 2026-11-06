@@ -1,10 +1,16 @@
 #include "graphics.h"
 #include "fbdev.h"
 
-inline void
-dot(struct drawplane_info *dpi, unsigned int x, unsigned int y, unsigned int radius)
+void
+dot(struct drawplane_info *dpi, uint32_t col, unsigned int x, unsigned int y, unsigned int radius)
 {
-	for(unsigned int i = 1; i < (radius<<1); ++i)
-		for(unsigned int j = 0; j<(radius+i%2-1); ++j)
-			put_pix(dpi, 0xffffff, x-(i+1)/2+j, y-radius+(i+2)/2+j);
+	unsigned int width = dpi->width;
+	for(unsigned int i = x-radius; i <= x+radius; ++i) {
+		if(i>=width)break;
+			for(unsigned int j = y-radius; j <= y+radius; ++j) {
+			if((x-i)*(x-i) + (y-j)*(y-j) <= radius*radius) {
+				put_pix(dpi, col, i, j);
+			}
+		}
+	}
 }	

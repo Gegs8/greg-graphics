@@ -73,6 +73,11 @@ destroy_device()
 	close(global_fd);
 }
 
+int give_fb()
+{
+	return global_fd;
+}
+
 int
 flush_device(struct drawplane_info *dpi)
 {

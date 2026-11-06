@@ -16,7 +16,7 @@ sinus(double rad)
 	{
 		result += (power(rad, (i<<1)-1) / factorial((i<<1)-1))*(-1+((i%2)<<1));
 	}
-	printf("%f\n", result);
+	//printf("%f\n", result);
 	return result;
 }
 
@@ -32,7 +32,7 @@ cosinus(double rad)
 	{
 		result += (power(rad, (i<<1)) / factorial((i<<1)))*(1-((i%2)<<1));
 	}
-	printf("%f\n", result);
+	//printf("%f\n", result);
 	return result*invert;
 }
 

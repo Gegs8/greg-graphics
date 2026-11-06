@@ -3,6 +3,6 @@
 
 #include "fbdev.h"
 
-void dot(struct drawplane_info *dpi, unsigned int x, unsigned int y, unsigned int radius);
+void dot(struct drawplane_info *dpi, uint32_t col, unsigned int x, unsigned int y, unsigned int radius);
 
 #endif
