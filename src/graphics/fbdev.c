@@ -4,10 +4,19 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <linux/fb.h>
+#include <stdio.h>
+#include <time.h>
+#include <errno.h>
+#include <string.h>
 
 static char *devices[] = {
+
 	"/dev/fb0",
 	"/dev/fb1",
+	"/dev/fb2",
+	"/dev/fb3",
+	"/dev/fb4",
+	"/dev/fb5",
 	NULL,
 };
 
@@ -73,16 +82,16 @@ destroy_device()
 	close(global_fd);
 }
 
-int give_fb()
-{
-	return global_fd;
-}
 
 int
 flush_device(struct drawplane_info *dpi)
 {
 	(void)dpi;
-	return 0;
+	int zero = 0;
+ ioctl(global_fd, FBIO_WAITFORVSYNC, &zero);
+
+
+return 0;
 }
 
 static int

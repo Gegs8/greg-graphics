@@ -1,5 +1,6 @@
 #include "render.h"
 #include "graphics.h"
+#include <stdlib.h>
 
 #define ABS(X) (((X) > 0) ? (X) : (-(X)))
 
@@ -27,6 +28,9 @@ render_model(struct drawplane_info *dpi, matrix model, int **edges, size_t num_e
 
 	for (size_t i = 0; i < num_edges; ++i)
 		draw_line(dpi, 0x00ff00, projected[edges[i][0]], projected[edges[i][1]]);
+	for(size_t i = 0; i < num_verts; ++i)
+		free(projected[i]);
+	free(projected);
 }
 
 void
@@ -38,16 +42,15 @@ draw_line (struct drawplane_info *dpi, uint32_t col, vector point1, vector point
 	int sx = x1 < x2 ? 1 : -1;
 	int sy = y1 < y2 ? 1 : -1;
 	int e = dx + dy;
-	int e2, drawn = 0;
+	int e2;
 	unsigned int width = dpi->width, height = dpi->height;
 	while(1) {
-		if(ABS(x1) >= width || ABS(y1) >= height) break; 
+		if(!(ABS(x1) >= width || ABS(y1) >= height) )
 		put_pix(dpi, col, x1, y1);
 		e2 = 2 * e;
 		if(e2 >= dy) {
 			if(x1 == x2)
 			{
-				drawn = 1;
 				break;
 			}
 			e += dy;
@@ -56,14 +59,13 @@ draw_line (struct drawplane_info *dpi, uint32_t col, vector point1, vector point
 		if(e2 <= dx) {
 			if(y1 == y2)
 			{
-				drawn = 1;
 				break;
 			}
 			e += dx;
 			y1 += sy;
 		}
 	}
-	dx = dx;
+	/*dx = dx;
 	dy = dy;
 	sx = x1 < x2 ? -1 : 1;
 	sy = y1 < y2 ? -1 : 1;
@@ -83,7 +85,7 @@ draw_line (struct drawplane_info *dpi, uint32_t col, vector point1, vector point
 			e += dx;
 			y2 += sy;
 		}
-	}
+	}*/
 	
 }
 

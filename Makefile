@@ -3,8 +3,9 @@ OBJDIR := build
 SRCS = $(shell find $(SRCDIR) -name "*.c")
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
-CFLAGS = -g -Wall -Wextra -Wshadow -Wpedantic -Werror
-LDFLAGS = -g
+CFLAGS = -g -Wall -Wextra -Wshadow -Wpedantic -Werror -fsanitize=address
+LDFLAGS = -g -fsanitize=address
+
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	@mkdir -p $(@D)
